@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React,{useEffect} from 'react';
+import { Routes,Route } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { fetchReqInitiated, fetchReqSuccess, fetchReqFailure } from './Redux/Actions/fetchDataAction';
+import axios from 'axios';
+import NavBar from './Components/NavBar.js';
+import Shop from './Pages/Shop.js';
+import CheckOut from './Pages/CheckOut.js';
+import './style.css';
 
-function App() {
+const App = () => {
+  const dispatch = useDispatch();
+    
+    useEffect(()=>{
+        dispatch(fetchReqInitiated())
+        async function getItemsData() {
+            try{
+                const response = axios.get('https://dummyjson.com/products');
+                dispatch(fetchReqSuccess((await response).data));
+                console.log((await response).data);
+            }catch(error){
+                dispatch(fetchReqFailure(error.message));
+            }
+        }
+        getItemsData();
+    },[dispatch])
+
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <NavBar/>
+      <Routes>
+        <Route path='/' element={<Shop/>}/>
+        <Route path='/cart' element={<CheckOut/>}/>
+      </Routes>
+
+    </>
+  )
 }
 
 export default App;
